@@ -1,0 +1,15 @@
+SELECT 
+    t1.transaction_date,
+    t1.daily_amount,
+    (SELECT SUM(t2.daily_amount) / 3 
+     FROM (
+         SELECT DATE(transaction_time) AS transaction_date, SUM(transaction_amount) AS daily_amount 
+         FROM transactions GROUP BY 1
+     ) AS t2
+     WHERE t2.transaction_date BETWEEN DATE_SUB(t1.transaction_date, INTERVAL 2 DAY) AND t1.transaction_date
+    ) AS rolling_3_day_avg
+FROM (
+    SELECT DATE(transaction_time) AS transaction_date, SUM(transaction_amount) AS daily_amount 
+    FROM transactions GROUP BY 1
+) AS t1
+WHERE t1.transaction_date = '2021-01-31';
